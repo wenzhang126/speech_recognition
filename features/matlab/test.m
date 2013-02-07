@@ -1,4 +1,5 @@
 % in ms
+close all; clear all;
 len = 25;
 overlap = 15;
 ncoeffs = 13;
