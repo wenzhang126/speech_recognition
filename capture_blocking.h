@@ -26,5 +26,6 @@ typedef short SAMPLE;
 
 int main(void);
 void write2file(cv::Mat mat, const char* path);
+int createWindow(char *path);
 
 #endif

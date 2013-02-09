@@ -38,6 +38,9 @@ int main(void)
     sampleBlock = (SAMPLE *) malloc( numBytes );
     buflen = 2 * FRAMES_PER_BUFFER * NUM_CHANNELS;
     windowBuffer = (float *) malloc( buflen * sizeof(float) );
+    
+    int framesRecorded, totalSamples;
+    
     if( sampleBlock == NULL )
     {
         printf("Could not allocate record array.\n");
@@ -49,10 +52,6 @@ int main(void)
     if( err != paNoError ) goto error;
     
     inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
-    printf( "Input device # %d.\n", inputParameters.device );
-    printf( "Input LL: %g s\n", Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency );
-    printf( "Input HL: %g s\n", Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency );
-
     inputParameters.channelCount = NUM_CHANNELS;
     inputParameters.sampleFormat = PA_SAMPLE_TYPE;
     inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
@@ -118,8 +117,6 @@ int main(void)
             bg = avgEnergy;
             lowThresh = 4 * bg;
             highThresh = 40 * lowThresh;
-            
-            //if(i == 7) printf("Background energy = %f\n", bg);
         }
         else{
             currEnergy[0] = 0; currEnergy[1] = 0;
@@ -131,14 +128,9 @@ int main(void)
                 currEnergy[1] += pow(windowBuffer[n + (FRAMES_PER_BUFFER / 2)], (float)2);
             }
             
-            //printf("buffer[0] = %f\n", windowBuffer[0]);
-            //printf("currEnergy[0] = %f\n", currEnergy[0]);
-            
             for(m = 0; m < 2; m++){
                 
                 level = ((level * forget) + currEnergy[m]) / (forget + 1);
-                
-                //printf("level = %f, bg = %f, lowThresh = %f, highThresh = %f\n", level,  bg, lowThresh, highThresh);
                 
                 if(speech == 1){
                     if((level - bg) < lowThresh){
@@ -151,7 +143,6 @@ int main(void)
                         }
                         
                         elapsedSilence += HOP_SIZE;
-                        //printf("Elapsed silence = %d\n", elapsedSilence);
                     }
                     else{
                         speech = 1;
@@ -172,12 +163,9 @@ int main(void)
                     else{
                         elapsedSpeech = 0;
                         elapsedSilence += HOP_SIZE;
-                        //printf("Elapsed silence = %d\n", elapsedSilence);
                     }
                 }
-                
-                //printf("speech = %d\n", speech);
-                
+                                
                 if(speech == 1){
                     bg += (level - bg) * adjust;
                 }
@@ -191,15 +179,12 @@ int main(void)
             }
             
         }
-        
-        //printf("speech = %d\n", speech);
-        
+                
         if(fid != NULL){
             fwrite(sampleBlock, NUM_CHANNELS * sizeof(SAMPLE), FRAMES_PER_BUFFER, fid);
         }
         
         timeElapsed += WINDOW_SIZE;
-        //printf("Time elapsed = %d\n", timeElapsed);
         
         i++;
                 
@@ -208,11 +193,10 @@ int main(void)
             printf("Speech stopped\n");
         }
         
-        /*if(i == 500){
-            stop = 1;
-            printf("Stopped by default\n");
-        }*/
     }
+    
+    framesRecorded = i;
+    totalSamples = framesRecorded * FRAMES_PER_BUFFER;
     
     err = Pa_StopStream( stream );
     if( err != paNoError ) goto error;
@@ -225,7 +209,11 @@ int main(void)
     free( sampleBlock );
     
     fid = fopen("recorded.raw","r");
-    n = fread(buf,sizeof(float),50000,fid);
+    
+    if(fid != NULL) {
+        n = fread(buf,sizeof(float),50000,fid);
+    }
+    
     comp.wav2feat(wav,feat);
     write2file(feat, "features.raw");
     while(n != 0) {
@@ -260,6 +248,31 @@ error:
     fprintf( stderr, "Error number: %d\n", err );
     fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) );
     return -1;
+}
+
+int createWindow(char* path)
+{
+    char fullPath[100] = strcat(path, "/hamming.raw");
+    int N = FRAMES_PER_BUFFER;
+    int i, fid;
+    
+    float hamm[N];
+    
+    for(i = 0; i < N; i++){
+        hamm[i] = 0.54 - 0.46 * cos(2 * M_PI * i / N);
+    }
+    
+    fid = fopen("hamming.raw", "r");
+    if(fid != NULL){
+        fwrite(hamm, sizeof(float), N, fid);
+    }
+    else{
+        return -1;
+    }
+    
+    fclose(fid);
+    
+    return 0;
 }
 
 void write2file(cv::Mat mat, const char* file) {
