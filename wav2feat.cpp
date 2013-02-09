@@ -9,7 +9,9 @@
 using namespace cv;
 using namespace std;
 Features::Features(std::string path) {
+	//load hamming window
 	
+	//load log filter bank
 }
 
 void Features::wav2feat (cv::Mat wav, cv::Mat feat) 
@@ -20,28 +22,25 @@ void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 	int NTimeBuckets = wavS.height/NW;
 	cv::Mat f(NPOW2,1,wav.type());
 	cv::Mat tmp(wavS,wav.type());
-	//cv::Mat spec = ;
-	//cv::Mat mfcc = cv::Mat(,40);
+	cv::Mat spec(NPOW2,NTimeBuckets,wav.type());
+	cv::Mat mfcc = cv::Mat(NTimeBuckets,40,wav.type());
 	
 	// pre-emphasize the input
 	preemphasis(wav,tmp);
 	
-	
 	// take the log magnitude of the spectrogram
-	//spectrogram(tmp,spec);
+	spectrogram(tmp,spec);
 	
 	
-	//abs(spec,tmp);
+	abs(spec);
 	
-	//log(tmp,spec);
+	log(spec,spec);
 
 		
-	//for(int col = 0; col < spec.cols; ++col) {
-		
-	//	mfcc.col(col).assignTo(logFilterBank*spec.colRange(col,col));
-		//points to each pixel B,G,R value in turn assuming a CV_8UC3 color image 
-    
-	//}
+	for(int col = 0; col < spec.cols; ++col) {
+		mfcc.col(col) = (logFilterBank*spec.colRange(col,col));
+	}
+	
 
 }
 
