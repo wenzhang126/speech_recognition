@@ -13,7 +13,6 @@
 #include "portaudio.h"
 #include <math.h>
 #include "capture_blocking.h"
-#include "wav2feat.hpp"
 
 int main(void)
 {
@@ -228,11 +227,11 @@ int main(void)
     fid = fopen("recorded.raw","r");
     n = fread(buf,sizeof(float),50000,fid);
     comp.wav2feat(wav,feat);
-    write2file(feat);
+    write2file(feat, "features.raw");
     while(n != 0) {
 		n = fread(buf,sizeof(float),50000,fid);
     	comp.wav2feat(wav,feat);
-    	write2file(feat);
+    	write2file(feat, "features.raw");
     }
 	comp.wav2feat(wav,feat);
 	
@@ -263,6 +262,6 @@ error:
     return -1;
 }
 
-void write2file(cv::Mat mat) {
-
+void write2file(cv::Mat mat, const char* file) {
+	
 }

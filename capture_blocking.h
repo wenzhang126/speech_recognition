@@ -1,5 +1,8 @@
 #ifndef CAPTURE_BLOCKING_H
 #define CAPTURE_BLOCKING_H
+
+#include "wav2feat.hpp"
+
 #define SAMPLE_RATE  (16000)
 #define WINDOW_SIZE 20 //ms
 #define FRAMES_PER_BUFFER (WINDOW_SIZE * SAMPLE_RATE / 1000)
@@ -22,6 +25,6 @@
 typedef short SAMPLE;
 
 int main(void);
-void write2file(cv::Mat mat);
+void write2file(cv::Mat mat, const char* path);
 
 #endif

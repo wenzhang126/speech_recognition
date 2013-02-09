@@ -26,7 +26,7 @@ using namespace std;
 class Features {
 	private: 
 	cv::Mat hammingWindow;
-	cv::Mat logFilterbBank;
+	cv::Mat logFilterBank;
 	void preemphasis(cv::Mat wav, cv::Mat pre);
 	void spectrogram(cv::Mat wav,cv::Mat spec);
 	
