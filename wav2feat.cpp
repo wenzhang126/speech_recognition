@@ -18,8 +18,8 @@ void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 {
 	// initialize necessary variables
 	Size wavS = wav.size();
-	// Number of collumns in the spectrogram
-	int NTimeBuckets = wavS.height/NW;
+	// Number of columns in the spectrogram
+	int NTimeBuckets = wavS.height/NO;
 	cv::Mat f(NPOW2,1,wav.type());
 	cv::Mat tmp(wavS,wav.type());
 	cv::Mat spec(NPOW2,NTimeBuckets,wav.type());
@@ -49,10 +49,12 @@ void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 void Features::preemphasis(cv::Mat wav, cv::Mat emph) 
 {
 	
-	Size s = wav.size();
-	emph.setTo(wav);
-	//emph.assignTo(vconcat(wav.rowRange(0,s.height-1,z,tmp)-
-	//				ALPHA*vconcat(z,wav.rowrange(1,s.height),tmp2);
+	cv::Size s = wav.size();
+	cv::Mat tmp(s,wav.type());
+	cv::Mat tmp2(s,wav.type());
+	cv::Mat z = cv::Mat::zeros(1,1,wav.type());
+	vconcat(wav.rowRange(0,s.height-1),z,tmp);
+	emph.setTo(tmp-ALPHA*tmp2);
 }
 
 
@@ -60,7 +62,8 @@ void Features::preemphasis(cv::Mat wav, cv::Mat emph)
 void Features::spectrogram(cv::Mat wav,cv::Mat spec)
 {
 	Size s = wav.size();
-	for (int i = 0; i < s.height; i++) {
+	int N floor(s.height/(NW-NO));
+	for (int i = 0; i < N; i++) {
 		if (i*(NW-NO)+NW-1 < s.height)	
 			cv::dft(wav.rowRange(i*(NW-NO),i*(NW-NO)+NW-1) * hammingWindow,spec.colRange(i,i),NPOW2);
 	 }
