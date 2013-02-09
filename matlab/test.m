@@ -5,4 +5,5 @@ overlap = 15;
 ncoeffs = 13;
 alpha = .95;
 [wav fs] = wavread('example.wav');
-feat = wav2feat(wav,fs,alpha,ncoeffs);
+wav = wav(1:16000);
+feat = wav2feat(wav,1600,alpha,ncoeffs);

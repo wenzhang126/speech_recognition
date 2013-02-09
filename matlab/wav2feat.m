@@ -12,28 +12,33 @@ nlogfilts = 40;
 wav = preemphasis(wav,alpha);
 
 % take the log magnitude of spectrogram
-[feat f t] = (spectrogram(wav,hamming(Nw),No));
-f = Fs*f/pi;
+[feat f t] = spectrogram(wav,Nw,No);
 feat = log10(abs(feat));
+size(feat)
+
 % plot log spectrogram
-figure;subplot(2,1,1);title('log spectrum');surf(t,f,feat);axis tight;view(0,90);
+figure;subplot(3,1,1);title('log spectrum');surf(t,f,feat);axis tight;view(0,90);
+f = Fs*f/pi;
+size(f)
+
 
 % compute and apply the log filterbank
 [filter ff] = log_filter(nlogfilts,f);
-feat2 = zeros(nlogfilts,size(feat,2));
-for i =1:size(feat,2)
+size(ff)
+feat2 = zeros(nlogfilts,numel(f));
+for i =1:numel(f)
     tmp = abs(f-ff(i));
     [v idx] = min(tmp); %index of closest value
     feat2(:,i) = filter*abs(feat(:,idx));
 end
 
-subplot(2,1,2);title('log filterbank');surf(t,f,feat);axis tight;view(0,90);
+subplot(3,1,2);title('log filterbank');surf(feat2);axis tight;view(0,90);
 
 % take the dct to get the mfccs and mean variance normalize
 feat = dct(feat2);
 feat = feat(1:ncoeffs,:);
 mvfeat = mvnorm(feat);
-
+subplot(3,1,3);title('MFCC');surf(feat);axis tight;view(0,90);
 % generate final feature matrix with velocity and acceleration
 sfeat = size(mvfeat);
 velfeat = [mvfeat(:,2:end) zeros(sfeat(1),1)] -[zeros(sfeat(1),1) mvfeat(:,1:end-1)];
