@@ -6,6 +6,6 @@ speech : capture_blocking.o wav2feat.o
 wav2feat.o : wav2feat.cpp wav2feat.hpp
 	g++ $(CFLAGS)  -c wav2feat.cpp 
 capture_blocking.o : capture_blocking.c capture_blocking.h
-	g++ -lportaudio $(CFLAGS) -c  capture_blocking.c 
+	g++ $(CFLAGS) -c  capture_blocking.c 
 clean :
 	rm -r *.o speech

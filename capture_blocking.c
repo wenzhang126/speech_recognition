@@ -252,9 +252,13 @@ error:
 
 int createWindow(char* path)
 {
-    char fullPath[100] = strcat(path, "/hamming.raw");
+    char fullPath[100];
     int N = FRAMES_PER_BUFFER;
-    int i, fid;
+    int i;
+    FILE *fid;
+    
+    strcpy(fullPath, path);
+    strcat(fullPath, "/hamming.raw");
     
     float hamm[N];
     
