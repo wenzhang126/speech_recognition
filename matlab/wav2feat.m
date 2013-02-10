@@ -6,7 +6,7 @@ tw = 25;
 to = 15;
 Nw = (tw/1000)*Fs;
 No = (to/1000)*Fs;
-nlogfilts = 40;
+nlogfilts = 30;
 
 % preemphasize the audio
 wav = preemphasis(wav,alpha);
@@ -20,10 +20,14 @@ size(feat)
 figure;subplot(3,1,1);title('log spectrum');surf(t,f,feat);axis tight;view(0,90);
 f = Fs*f/pi;
 size(f)
-
+hamming_w = hamming(Nw);
+save('hamming_w','hamming_w','-ascii');
 
 % compute and apply the log filterbank
 [filter ff] = log_filter(nlogfilts,f);
+logfilter = filter;
+save('logfilter','logfilter','-ascii');
+save('ff','ff','-ascii');
 size(ff)
 feat2 = zeros(nlogfilts,numel(f));
 for i =1:numel(f)

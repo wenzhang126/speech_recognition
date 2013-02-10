@@ -16,9 +16,9 @@
 #define ALPHA (.95)		// emphasis coefficient
 #define TW 25
 #define TO 15 
-#define NW ((TW/1000)*FS)
-#define NO ((TO/1000)*FS)
-#define N_LOG_FILTS 40
+#define NW (((float)TW/1000)*FS)
+#define NO (((float)TO/1000)*FS)
+#define NLOGFILTS 40
 #define NPOW2 512
 using namespace cv;
 using namespace std;
@@ -27,11 +27,13 @@ class Features {
 	private: 
 	cv::Mat hammingWindow;
 	cv::Mat logFilterBank;
+	int nLogFilterBanks = 30;
 	void preemphasis(cv::Mat wav, cv::Mat pre);
 	void spectrogram(cv::Mat wav,cv::Mat spec);
 	
 	public:
 	void wav2feat (cv::Mat wav, cv::Mat feat);
 	// takes path to directory with hammingWindow and Filterbank coeffs
-	Features(string path);
+	Features();
+	Features(int nLogFilterBanks);
 };

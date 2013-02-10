@@ -64,6 +64,6 @@ for i = 1:N
                     MelFrequencyVector<=((i+1)*MelBinWidth+MinF));
     Filter(i,iFilter) = hWindow(numel(iFilter)); % Triangle window
 end
-Filter = sparse(Filter);    % Reduce memory size
+% Filter = sparse(Filter);    % Reduce memory size
 
 end
