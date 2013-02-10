@@ -8,10 +8,19 @@
 // accepts 16k PCM 16 bit.
 using namespace cv;
 using namespace std;
-Features::Features(std::string path) {
+Features::Features() {
 	//load hamming window
-	
+	hammingWindow = generateHamming(NW);
+
 	//load log filter bank
+}
+
+Features::Features(int nLogFilterBanks) {
+	nLogFilterBanks = nLogFilterBanks;
+	//load hamming window
+	hammingWindow = generateHamming(NW);
+	//load log filter bank
+	logFilterBank = generateFilterBank(nLogFilterBanks);
 }
 
 void Features::wav2feat (cv::Mat wav, cv::Mat feat) 
