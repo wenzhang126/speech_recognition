@@ -27,7 +27,7 @@ Features::Features(int nLogFilterBanks, cv::Range frange, int type) {
 	generateFilterBank(logFilterBank);
 }
 
-void generateFreqs(cv::Mat freqs) {
+void Features::generateFreqs(cv::Mat freqs) {
 	for (int i = 0; i < NW; i++) {
 		freqs.row(i) = (FS*i)/(2*CV_PI*NW);	
 	}
@@ -70,12 +70,13 @@ void Features::preemphasis(cv::Mat wav, cv::Mat emph)
 	emph = Mat(tmp-ALPHA*tmp2).clone();
 }
 
-void generateHamming(cv::Mat window)
+void Features::generateHamming(cv::Mat window)
 {
     for(int i = 0; i < NW; i++){
         window.row(i) = 0.54 - 0.46 * cos(2 * M_PI * i / NW);
     }
 }
+
 
 void Features::spectrogram(cv::Mat wav,cv::Mat spec)
 {
