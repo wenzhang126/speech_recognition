@@ -34,7 +34,7 @@ class Features {
 	void preemphasis(cv::Mat wav, cv::Mat pre);
 	void spectrogram(cv::Mat wav,cv::Mat spec);
 	void generateFreqs(float[] freqs);
-	cv::Mat generateFilterBank();
+	cv::Mat generateFilterBank(int N, float* freqVect, float* melfvect);
 	void setNLogFilterBanks(int nLogFilterBanks);
 	void generateHamming(cv::Mat window);
 	

@@ -3,6 +3,7 @@
 #include <cv.hpp>
 #include <highgui.h>
 #include <string.h>
+#include <math.h>
 #include "wav2feat.hpp"
 
 // accepts 16k PCM 16 bit.
@@ -33,6 +34,24 @@ void generateFreqs(cv::Mat freqs) {
 	for (int i = 0; i < NW; i++) {
 		freqs.row(i) = (FS*i)/(2*CV_PI*N);	
 	}
+}
+
+cv::Mat generateFilterBank(int N, cv::Mat freqVect, cv::Mat melfvect){
+    
+    Size s = freqVect.size();
+    int len = s.height;
+    int i;
+    float maxf, minf, melbinwidth;
+    
+    for(i = 0; i < len; i++){
+        melfvect.row(i) = 2595 * log10((1 + freqVect.row(i)) / 700);
+    }
+    
+    maxf = melfvect.row(s.height - 1);
+    minf = melfvect.row(0);
+    melbinwidth = (maxf - minf) / (N + 1);
+    
+    
 }
 
 void Features::wav2feat (cv::Mat wav, cv::Mat feat) 
@@ -76,7 +95,7 @@ void Features::preemphasis(cv::Mat wav, cv::Mat emph)
 void generateHamming(cv::Mat window)
 {
     for(i = 0; i < NW; i++){
-        window.row(i) = 0.54 - 0.46 * cos(2 * M_PI * i / N);
+        window.row(i) = 0.54 - 0.46 * cos(2 * CV_PI * i / N);
     }
 }
 
