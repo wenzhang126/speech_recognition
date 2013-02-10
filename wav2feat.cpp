@@ -30,17 +30,13 @@ void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 	
 	// take the log magnitude of the spectrogram
 	spectrogram(tmp,spec);
-	
-	
 	abs(spec);
-	
 	log(spec,spec);
 
-		
 	for(int col = 0; col < spec.cols; ++col) {
 		mfcc.col(col) = (logFilterBank*spec.colRange(col,col));
 	}
-	
+	std::cout << mfcc;
 
 }
 
@@ -48,13 +44,12 @@ void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 
 void Features::preemphasis(cv::Mat wav, cv::Mat emph) 
 {
-	
 	cv::Size s = wav.size();
 	cv::Mat tmp(s,wav.type());
 	cv::Mat tmp2(s,wav.type());
 	cv::Mat z = cv::Mat::zeros(1,1,wav.type());
 	vconcat(wav.rowRange(0,s.height-1),z,tmp);
-	emph.setTo(tmp-ALPHA*tmp2);
+	emph = Mat(tmp-ALPHA*tmp2).clone();
 }
 
 
@@ -62,9 +57,9 @@ void Features::preemphasis(cv::Mat wav, cv::Mat emph)
 void Features::spectrogram(cv::Mat wav,cv::Mat spec)
 {
 	Size s = wav.size();
-	int N floor(s.height/(NW-NO));
+	int N = floor(s.height/(NW-NO));
 	for (int i = 0; i < N; i++) {
 		if (i*(NW-NO)+NW-1 < s.height)	
-			cv::dft(wav.rowRange(i*(NW-NO),i*(NW-NO)+NW-1) * hammingWindow,spec.colRange(i,i),NPOW2);
+			cv::dft(wav.rowRange(i*(NW-NO),i*(NW-NO)+NW-1) * hammingWindow,spec.col(i),NPOW2);
 	 }
 }
