@@ -115,8 +115,8 @@ int main(void)
             avgEnergy += (currEnergy[0] + currEnergy[1]);
             avgEnergy = avgEnergy / 3;
             bg = avgEnergy;
-            lowThresh = 4 * bg;
-            highThresh = 40 * lowThresh;
+            lowThresh = bg + 0.4;
+            highThresh = 20 * lowThresh;
         }
         else{
             currEnergy[0] = 0; currEnergy[1] = 0;
