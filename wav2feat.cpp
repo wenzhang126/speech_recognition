@@ -10,17 +10,29 @@ using namespace cv;
 using namespace std;
 Features::Features() {
 	//load hamming window
-	hammingWindow = generateHamming(NW);
-
+	nLogFilterBanks = 30;
+	generateHamming(hammingWindow);
 	//load log filter bank
+	
 }
 
-Features::Features(int nLogFilterBanks) {
+Features::Features(int nLogFilterBanks, cv::Range frange, int type) {
 	nLogFilterBanks = nLogFilterBanks;
-	//load hamming window
-	hammingWindow = generateHamming(NW);
-	//load log filter bank
+	logFilterBankRange = frange;
+	type = type;
+	//frequencies((int)NW,1, ) // need float type;
+	frequencies = malloc(sizeof(float)*NW);
+	generateFreqs(frequencies);
+	hammingWindow((int)NW,1,type);
+	generateHamming(hammingWindow);
 	logFilterBank = generateFilterBank(nLogFilterBanks);
+}
+
+void generateFreqs(cv::Mat freqs) {
+	cv::Mat freqs(NW,1,);
+	for (int i = 0; i < NW; i++) {
+		freqs.row(i) = (FS*i)/(2*CV_PI*N);	
+	}
 }
 
 void Features::wav2feat (cv::Mat wav, cv::Mat feat) 
@@ -40,10 +52,10 @@ void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 	// take the log magnitude of the spectrogram
 	spectrogram(tmp,spec);
 	abs(spec);
-	log(spec,spec);
-
+	log10(spec,spec);
 	for(int col = 0; col < spec.cols; ++col) {
 		mfcc.col(col) = (logFilterBank*spec.colRange(col,col));
+		cv::dct(mfcc(col),mfcc(col),NULL);
 	}
 	std::cout << mfcc;
 
@@ -61,14 +73,19 @@ void Features::preemphasis(cv::Mat wav, cv::Mat emph)
 	emph = Mat(tmp-ALPHA*tmp2).clone();
 }
 
+void generateHamming(cv::Mat window)
+{
+    for(i = 0; i < NW; i++){
+        window.row(i) = 0.54 - 0.46 * cos(2 * M_PI * i / N);
+    }
+}
 
-
-void Features::spectrogram(cv::Mat wav,cv::Mat spec)
+void Features::spectrogram(cv::Mat wav,cv::Mat spec, cv::Mat freqs)
 {
 	Size s = wav.size();
 	int N = floor(s.height/(NW-NO));
 	for (int i = 0; i < N; i++) {
 		if (i*(NW-NO)+NW-1 < s.height)	
 			cv::dft(wav.rowRange(i*(NW-NO),i*(NW-NO)+NW-1) * hammingWindow,spec.col(i),NPOW2);
-	 }
+	}
 }
