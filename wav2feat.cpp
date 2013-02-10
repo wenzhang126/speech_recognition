@@ -8,6 +8,7 @@
 // accepts 16k PCM 16 bit.
 using namespace cv;
 using namespace std;
+
 Features::Features() {
 	//load hamming window
 	nLogFilterBanks = 30;
@@ -21,17 +22,14 @@ Features::Features(int nLogFilterBanks, cv::Range frange, int type) {
 	logFilterBankRange = frange;
 	type = type;
 	//frequencies((int)NW,1, ) // need float type;
-	frequencies = malloc(sizeof(float)*NW);
 	generateFreqs(frequencies);
-	hammingWindow((int)NW,1,type);
 	generateHamming(hammingWindow);
-	logFilterBank = generateFilterBank(nLogFilterBanks);
+	generateFilterBank(logFilterBank);
 }
 
 void generateFreqs(cv::Mat freqs) {
-	cv::Mat freqs(NW,1,);
 	for (int i = 0; i < NW; i++) {
-		freqs.row(i) = (FS*i)/(2*CV_PI*N);	
+		freqs.row(i) = (FS*i)/(2*CV_PI*NW);	
 	}
 }
 
@@ -51,14 +49,13 @@ void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 	
 	// take the log magnitude of the spectrogram
 	spectrogram(tmp,spec);
-	abs(spec);
-	log10(spec,spec);
+	cv::abs(spec);
+	cv::log(spec,spec);
 	for(int col = 0; col < spec.cols; ++col) {
 		mfcc.col(col) = (logFilterBank*spec.colRange(col,col));
-		cv::dct(mfcc(col),mfcc(col),NULL);
+		cv::dct(mfcc.col(col),mfcc.col(col),NULL);
 	}
 	std::cout << mfcc;
-
 }
 
 
@@ -75,12 +72,12 @@ void Features::preemphasis(cv::Mat wav, cv::Mat emph)
 
 void generateHamming(cv::Mat window)
 {
-    for(i = 0; i < NW; i++){
-        window.row(i) = 0.54 - 0.46 * cos(2 * M_PI * i / N);
+    for(int i = 0; i < NW; i++){
+        window.row(i) = 0.54 - 0.46 * cos(2 * M_PI * i / NW);
     }
 }
 
-void Features::spectrogram(cv::Mat wav,cv::Mat spec, cv::Mat freqs)
+void Features::spectrogram(cv::Mat wav,cv::Mat spec)
 {
 	Size s = wav.size();
 	int N = floor(s.height/(NW-NO));

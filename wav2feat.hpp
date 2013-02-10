@@ -27,14 +27,14 @@ class Features {
 	private: 
 	cv::Mat hammingWindow;
 	cv::Mat logFilterBank;
-	float* frequencies;
+	cv::Mat frequencies;
 	cv::Range logFilterBankRange;
 	int nLogFilterBanks;
 	int type;
 	void preemphasis(cv::Mat wav, cv::Mat pre);
 	void spectrogram(cv::Mat wav,cv::Mat spec);
-	void generateFreqs(float[] freqs);
-	cv::Mat generateFilterBank();
+	void generateFreqs(cv::Mat freqs);
+	void generateFilterBank(cv::Mat filterbank);
 	void setNLogFilterBanks(int nLogFilterBanks);
 	void generateHamming(cv::Mat window);
 	
