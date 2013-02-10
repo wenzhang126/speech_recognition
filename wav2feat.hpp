@@ -20,6 +20,7 @@
 #define NO (((float)TO/1000)*FS)
 #define NLOGFILTS 40
 #define NPOW2 512
+#define NMFCCS 13
 using namespace cv;
 using namespace std;
 
@@ -37,7 +38,7 @@ class Features {
 	void generateFilterBank(cv::Mat filterbank);
 	void setNLogFilterBanks(int nLogFilterBanks);
 	void generateHamming(cv::Mat window);
-	
+	void calcDeriv(cv::Mat in, cv::Mat out) ;
 	public:
 	void wav2feat (cv::Mat wav, cv::Mat feat);
 	// takes path to directory with hammingWindow and Filterbank coeffs
