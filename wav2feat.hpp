@@ -36,9 +36,6 @@ class Features {
 <<<<<<< HEAD
 	void generateFreqs(cv::Mat freqs);
 	void generateFilterBank(cv::Mat filterbank);
-=======
-	void generateFreqs(float[] freqs);
-	cv::Mat generateFilterBank(int N, float* freqVect, float* melfvect);
 >>>>>>> Generate filter bank in progress
 	void setNLogFilterBanks(int nLogFilterBanks);
 	void generateHamming(cv::Mat window);
