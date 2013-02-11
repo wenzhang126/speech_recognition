@@ -18,14 +18,14 @@
 #define TO 15 
 #define NW (((float)TW/1000)*FS)
 #define NO (((float)TO/1000)*FS)
-#define NLOGFILTS 40
 #define NPOW2 512
+#define NPOW2LOG 64
 #define NMFCCS 13
 using namespace cv;
 using namespace std;
 
 class Features {
-	private:
+	private: 
 	cv::Mat hammingWindow;
 	cv::Mat logFilterBank;
 	cv::Mat frequencies;
@@ -40,8 +40,9 @@ class Features {
 	cv::Mat generateFilterBank(int N, cv::Mat freqVect, cv::Mat melfvect);
 	void setNLogFilterBanks(int nLogFilterBanks);
 	void generateHamming(cv::Mat window);
-	void calcDeriv(cv::Mat in, cv::Mat out);
-    
+	void calcDeriv(cv::Mat in, cv::Mat out) ;
+	void mfccFilter(cv::Mat spec,cv::Mat mfcc);
+
 	public:
 	void wav2feat (cv::Mat wav, cv::Mat feat);
 	// takes path to directory with hammingWindow and Filterbank coeffs

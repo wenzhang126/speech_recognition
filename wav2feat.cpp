@@ -33,25 +33,28 @@ cv::Mat Features::readFile(char *filename){
     int slen = 0, i;
     float f;
     
+    cv::Mat wav = cv::Mat::zeros(1, 1, CV_32F);
     FILE *fid = fopen(filename, "r");
     if(fid == NULL){
         printf("Could not open waveform file\n");
     }
     else{
-    
+        
         while(fgets(lines, 100, fid) != NULL){
             slen++;
         }
         rewind(fid);
-    
-        cv::Mat signal = cv::Mat::zeros(slen, 1, type);
+        
+        wav.create(slen, 1, CV_32F);
         for(i = 0; i < slen; i++){
             fscanf(fid, "%f\n", &f);
-            signal.at<float>(i, 0) = f;
+            wav.at<float>(i, 0) = f;
         }
     }
     
-    return signal;
+    fclose(fid);
+        
+    return wav;
 }
 
 void write2file(cv::Mat mat, const char* file) {
@@ -156,15 +159,20 @@ void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 	spectrogram(tmp,spec);
 	cv::abs(spec);
 	cv::log(spec,spec);
-    
-	for(int col = 0; col < spec.cols; ++col) {
-		mfcc.col(col) = (logFilterBank*spec.colRange(col,col));
-		cv::dct(mfcc.col(col),mfcc.col(col),NULL);
-	}
+    mfccFilter(spec,mfcc);
 	//mfccfeat = mfcc.rowRange(0,NMFCCS);
-	calcDeriv(feat.rowRange(0,NMFCCS),v);
+	calcDeriv(mfcc,v);
 	calcDeriv(v,a);
 	std::cout << mfcc;
+}
+
+void Features::mfccFilter(cv::Mat spec,cv::Mat mfcc) {
+	cv::Mat tmp;
+	for(int i; i < spec.cols;i++) {
+		tmp = logFilterBank*spec.col(i);
+		cv::dct(tmp,tmp,NPOW2LOG);
+		mfcc.col(i) = tmp.rowRange(0,NMFCCS);
+	}
 }
 
 void Features::calcDeriv(cv::Mat in, cv::Mat out) {

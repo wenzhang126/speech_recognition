@@ -283,7 +283,3 @@ error:
     
     return 0;
 }*/
-
-void write2file(cv::Mat mat, const char* file) {
-	
-}
