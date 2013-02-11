@@ -30,7 +30,7 @@ int main(void)
     FILE *fid;
     float max_value = 32768.0;
     // for feature computation
-    Features comp("filters/");
+    Features comp;
 	Mat wav(50000, 1, CV_16U, (void*) buf, sizeof(float));;
 	Mat feat;
 	
@@ -115,8 +115,8 @@ int main(void)
             avgEnergy += (currEnergy[0] + currEnergy[1]);
             avgEnergy = avgEnergy / 3;
             bg = avgEnergy;
-            lowThresh = 4 * bg;
-            highThresh = 40 * lowThresh;
+            lowThresh = bg + 0.4;
+            highThresh = 20 * lowThresh;
         }
         else{
             currEnergy[0] = 0; currEnergy[1] = 0;
@@ -250,7 +250,7 @@ error:
     return -1;
 }
 
-int createWindow(char* path)
+/*int createWindow(char* path)
 {
     char fullPath[100];
     int N = FRAMES_PER_BUFFER;
@@ -277,7 +277,7 @@ int createWindow(char* path)
     fclose(fid);
     
     return 0;
-}
+}*/
 
 void write2file(cv::Mat mat, const char* file) {
 	
