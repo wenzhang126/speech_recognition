@@ -28,7 +28,7 @@ Features::Features(int nLogFilterBanks, cv::Range frange, int type) {
 	generateFilterBank(logFilterBank);
 }
 
-void generateFreqs(cv::Mat freqs) {
+void Features::generateFreqs(cv::Mat freqs) {
 	for (int i = 0; i < NW; i++) {
 		freqs.row(i) = (FS*i)/(2*CV_PI*NW);	
 	}
@@ -103,8 +103,9 @@ void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 	cv::Mat f(NPOW2,1,wav.type());
 	cv::Mat tmp(wavS,wav.type());
 	cv::Mat spec(NPOW2,NTimeBuckets,wav.type());
-	cv::Mat mfcc = cv::Mat(NTimeBuckets,40,wav.type());
-	
+	cv::Mat mfcc = cv::Mat(NTimeBuckets,nLogFilterBanks,wav.type());
+	cv::Mat v(NMFCCS,NTimeBuckets,wav.type());
+	cv::Mat a(NMFCCS,NTimeBuckets,wav.type());
 	// pre-emphasize the input
 	preemphasis(wav,tmp);
 	
@@ -116,9 +117,21 @@ void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 		mfcc.col(col) = (logFilterBank*spec.colRange(col,col));
 		cv::dct(mfcc.col(col),mfcc.col(col),NULL);
 	}
+	//mfccfeat = mfcc.rowRange(0,NMFCCS);
+	calcDeriv(feat.rowRange(0,NMFCCS),v);
+	calcDeriv(v,a);
 	std::cout << mfcc;
 }
 
+void Features::calcDeriv(cv::Mat in, cv::Mat out) {
+	cv::Size s = in.size();
+	cv::Mat tmp(s,in.type());
+	cv::Mat tmp2(s,in.type());
+	cv::Mat z = cv::Mat::zeros(NMFCCS,1,in.type());
+	hconcat(in.rowRange(0,s.height-1),z,tmp);
+	hconcat(z,in.rowRange(0,s.height-1),tmp2);
+	out =tmp - tmp2;
+}
 
 
 void Features::preemphasis(cv::Mat wav, cv::Mat emph) 
@@ -128,10 +141,11 @@ void Features::preemphasis(cv::Mat wav, cv::Mat emph)
 	cv::Mat tmp2(s,wav.type());
 	cv::Mat z = cv::Mat::zeros(1,1,wav.type());
 	vconcat(wav.rowRange(0,s.height-1),z,tmp);
+	vconcat(z,wav.rowRange(0,s.height-1),tmp2);
 	emph = Mat(tmp-ALPHA*tmp2).clone();
 }
 
-void generateHamming(cv::Mat window)
+void Features::generateHamming(cv::Mat window)
 {
 <<<<<<< HEAD
     for(int i = 0; i < NW; i++){
@@ -142,6 +156,7 @@ void generateHamming(cv::Mat window)
 >>>>>>> Generate filter bank in progress
     }
 }
+
 
 void Features::spectrogram(cv::Mat wav,cv::Mat spec)
 {
