@@ -27,6 +27,50 @@ Features::Features(int nLogFilterBanks, int type) {
     logFilterBank = generateFilterBank(nLogFilterBanks, frequencies, logFrequencies);
 }
 
+cv::Mat Features::readFile(char *filename){
+    
+    char lines[100];
+    int slen = 0, i;
+    float f;
+    
+    FILE *fid = fopen(filename, "r");
+    if(fid == NULL){
+        printf("Could not open waveform file\n");
+    }
+    else{
+    
+        while(fgets(lines, 100, fid) != NULL){
+            slen++;
+        }
+        rewind(fid);
+    
+        cv::Mat signal = cv::Mat::zeros(slen, 1, type);
+        for(i = 0; i < slen; i++){
+            fscanf(fid, "%f\n", &f);
+            signal.at<float>(i, 0) = f;
+        }
+    }
+    
+    return signal;
+}
+
+void write2file(cv::Mat mat, const char* file) {
+	
+    Size s = mat.size();
+    int rows = s.height, cols = s.width;
+    FILE* fid = fopen(file, "wb");
+    int i, j;
+    
+    for(i = 0; i < rows; i++){
+        for(j = 0; j < cols; j++){
+            fprintf(fid, "%f ", mat.at<float>(i, j));
+        }
+        fprintf(fid, "\n");
+    }
+    
+    fclose(fid);
+}
+
 void Features::generateFreqs(cv::Mat freqs) {
 	for (int i = 0; i < NW; i++) {
 		freqs.row(i) = (FS*i)/(2*CV_PI*NW);	

@@ -57,7 +57,8 @@ int main(void)
     inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
     inputParameters.hostApiSpecificStreamInfo = NULL;
     
-    fid = fopen("recorded.raw", "wb");
+    //fid = fopen("recorded.raw", "wb");
+    fid = fopen("recorded.dat", "wb");
     if(fid == NULL)
         printf("Could not open file.");
     
@@ -181,7 +182,11 @@ int main(void)
         }
                 
         if(fid != NULL){
-            fwrite(sampleBlock, NUM_CHANNELS * sizeof(SAMPLE), FRAMES_PER_BUFFER, fid);
+            //fwrite(sampleBlock, NUM_CHANNELS * sizeof(SAMPLE), FRAMES_PER_BUFFER, fid);
+            for(n = 0; n < FRAMES_PER_BUFFER; n++){
+                if(n == 0) printf("%d\n", sampleBlock[n]); fflush(stdout);
+                fprintf(fid, "%d\n", sampleBlock[n]);
+            }
         }
         
         timeElapsed += WINDOW_SIZE;

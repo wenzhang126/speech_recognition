@@ -25,20 +25,23 @@ using namespace cv;
 using namespace std;
 
 class Features {
-	private: 
+	private:
 	cv::Mat hammingWindow;
 	cv::Mat logFilterBank;
 	cv::Mat frequencies;
 	cv::Mat logFrequencies;
 	int nLogFilterBanks;
 	int type;
+    cv::Mat readFile(char *filename);
+    void write2file(cv::Mat mat, const char* file);
 	void preemphasis(cv::Mat wav, cv::Mat pre);
 	void spectrogram(cv::Mat wav,cv::Mat spec);
 	void generateFreqs(cv::Mat freqs);
 	cv::Mat generateFilterBank(int N, cv::Mat freqVect, cv::Mat melfvect);
 	void setNLogFilterBanks(int nLogFilterBanks);
 	void generateHamming(cv::Mat window);
-	void calcDeriv(cv::Mat in, cv::Mat out) ;
+	void calcDeriv(cv::Mat in, cv::Mat out);
+    
 	public:
 	void wav2feat (cv::Mat wav, cv::Mat feat);
 	// takes path to directory with hammingWindow and Filterbank coeffs
