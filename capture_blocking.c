@@ -30,7 +30,7 @@ int main(void)
     FILE *fid;
     float max_value = 32768.0;
     // for feature computation
-    Features comp("filters/");
+    Features comp;
 	Mat wav(50000, 1, CV_16U, (void*) buf, sizeof(float));;
 	Mat feat;
 	

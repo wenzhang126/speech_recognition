@@ -29,15 +29,13 @@ class Features {
 	cv::Mat hammingWindow;
 	cv::Mat logFilterBank;
 	cv::Mat frequencies;
-	cv::Range logFilterBankRange;
+	cv::Mat logFrequencies;
 	int nLogFilterBanks;
 	int type;
 	void preemphasis(cv::Mat wav, cv::Mat pre);
 	void spectrogram(cv::Mat wav,cv::Mat spec);
-<<<<<<< HEAD
 	void generateFreqs(cv::Mat freqs);
-	void generateFilterBank(cv::Mat filterbank);
->>>>>>> Generate filter bank in progress
+	cv::Mat generateFilterBank(int N, cv::Mat freqVect, cv::Mat melfvect);
 	void setNLogFilterBanks(int nLogFilterBanks);
 	void generateHamming(cv::Mat window);
 	void calcDeriv(cv::Mat in, cv::Mat out) ;
@@ -45,5 +43,5 @@ class Features {
 	void wav2feat (cv::Mat wav, cv::Mat feat);
 	// takes path to directory with hammingWindow and Filterbank coeffs
 	Features();
-	Features(int nLogFilterBanks, cv::Range frange, int type);
+	Features(int nLogFilterBanks, int type);
 };
