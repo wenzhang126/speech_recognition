@@ -250,7 +250,7 @@ error:
     return -1;
 }
 
-int createWindow(char* path)
+/*int createWindow(char* path)
 {
     char fullPath[100];
     int N = FRAMES_PER_BUFFER;
@@ -277,7 +277,7 @@ int createWindow(char* path)
     fclose(fid);
     
     return 0;
-}
+}*/
 
 void write2file(cv::Mat mat, const char* file) {
 	
