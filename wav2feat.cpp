@@ -38,8 +38,8 @@ cv::Mat generateFilterBank(int N, cv::Mat freqVect, cv::Mat melfvect){
     
     Size s = freqVect.size();
     int len = s.height;
-    int i;
-    float maxf, minf, melbinwidth;
+    int i, j, filtlen, start, direction;
+    float maxf, minf, melbinwidth, step, val;
     
     for(i = 0; i < len; i++){
         melfvect.row(i) = 2595 * log10((1 + freqVect.row(i)) / 700);
@@ -47,12 +47,54 @@ cv::Mat generateFilterBank(int N, cv::Mat freqVect, cv::Mat melfvect){
     
     maxf = melfvect.row(s.height - 1);
     minf = melfvect.row(0);
-    melbinwidth = (maxf - minf) / (N + 1);
+    melbinwidth = (maxf - minf) / N;
     
+    cv::Mat filterbank = cv::Mat::zeros(N, s.height, wav.type());
+    for (i = 0; i < N; i++){
+        filtlen = 0;
+        start = 0;
+        direction = 0;
+        for(j = 0; j < len; j++){
+            if((melfvect.row(j) >= (i*melbinwidth+minf)) &&
+               (melfvect.row(j) <= (i+1)*melbinwidth+minf)){
+                
+                if(start == 0)
+                    start = j;
+                
+                filtlen++;
+            }
+        }
+        
+        step = 2. / (float)filtlen;
+        val = 0;
+        
+        for(j = start; j < filtlen; j++){
+            
+            if(direction == 0){
+                if(val > 1){
+                    direction = 1;
+                }
+                else{
+                    val += step;
+                }
+            }
+            else{
+                if(val < 0){
+                    val = 0;
+                }
+                else{
+                    val -= step;
+                }
+            }
+                   
+            filterbank.at<float>(i, j) = val;
+        }
+    }
     
+    return filterbank;
 }
 
-void Features::wav2feat (cv::Mat wav, cv::Mat feat) 
+void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 {
 	// initialize necessary variables
 	Size wavS = wav.size();
