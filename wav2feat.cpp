@@ -27,7 +27,6 @@ Features::Features(int nLogFilterBanks, int type) {
 	generateFreqs(frequencies);
 	generateHamming(hammingWindow);
     logFilterBank = generateFilterBank(nLogFilterBanks, frequencies, logFrequencies);
-    printf("Ending feature initialization\n");
 }
 
 cv::Mat Features::readFile(char *filename){
@@ -145,6 +144,7 @@ cv::Mat Features::generateFilterBank(int N, cv::Mat freqVect, cv::Mat melfvect){
 
 void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 {
+    printf("Entering wav2feat function\n");
 	// initialize necessary variables
 	Size wavS = wav.size();
 	// Number of columns in the spectrogram
@@ -155,15 +155,21 @@ void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 	cv::Mat mfcc = cv::Mat(NTimeBuckets,nLogFilterBanks,wav.type());
 	cv::Mat v(NMFCCS,NTimeBuckets,wav.type());
 	cv::Mat a(NMFCCS,NTimeBuckets,wav.type());
+    
+    printf("End initializations, beginning computation\n");
     // pre-emphasize the input
 	preemphasis(wav,tmp);
 	
+    printf("Computing spectrogram\n");
 	// take the log magnitude of the spectrogram
 	spectrogram(tmp,spec);
+    printf("Taking abs and log of the spectrum\n");
 	cv::abs(spec);
 	cv::log(spec,spec);
+    printf("Apply MFCC filters\n");
     mfccFilter(spec,mfcc);
 	//mfccfeat = mfcc.rowRange(0,NMFCCS);
+    printf("Compute velocity and acceleration coefficients\n");
 	calcDeriv(mfcc,v);
 	calcDeriv(v,a);
 	std::cout << mfcc;
@@ -209,10 +215,20 @@ void Features::generateHamming(cv::Mat window)
 
 void Features::spectrogram(cv::Mat wav,cv::Mat spec)
 {
+    printf("===== Entering spectrogram =====\n");
 	Size s = wav.size();
+    cv::Mat temp;
+    cv::Mat temp2(NPOW2, 1, CV_32F);
+    cv::Mat product(NW, 1, CV_32F);
 	int N = floor(s.height/(NW-NO));
 	for (int i = 0; i < N; i++) {
-		if (i*(NW-NO)+NW-1 < s.height)	
-			cv::dft(wav.rowRange(i*(NW-NO),i*(NW-NO)+NW-1) * hammingWindow,spec.col(i),NPOW2);
+		if (i*(NW-NO)+NW < s.height){
+            temp = wav.rowRange(i*(NW-NO),i*(NW-NO)+NW);//.copyTo(temp);
+            copyMakeBorder(temp, temp2, 0, NPOW2 - NW, 0, 0, BORDER_CONSTANT, Scalar::all(0));
+            cv::multiply(temp, hammingWindow, product);
+            printf("DFT time...\n");
+			cv::dft(product, spec.col(i), 0, NPOW2);
+        }
 	}
+    printf("===== Leaving spectrogram =====\n");
 }

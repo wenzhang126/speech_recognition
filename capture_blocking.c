@@ -63,7 +63,7 @@ int main(void)
     inputParameters.hostApiSpecificStreamInfo = NULL;
     
     //fid = fopen("recorded.raw", "wb");
-    fid = fopen(filename, "wb");
+    /*fid = fopen(filename, "wb");
     if(fid == NULL)
         printf("Could not open file.");
     
@@ -214,9 +214,9 @@ int main(void)
     CLEAR( sampleBlock );
     
     if(fid != NULL)
-        fclose(fid);
+        fclose(fid); */
     
-    free( sampleBlock ); 
+    free( sampleBlock );
     
     /*fid = fopen("recorded.raw","r");
     
