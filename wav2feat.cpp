@@ -105,13 +105,14 @@ void Features::wav2feat (cv::Mat wav, cv::Mat feat)
 	cv::Mat mfcc = cv::Mat(NTimeBuckets,nLogFilterBanks,wav.type());
 	cv::Mat v(NMFCCS,NTimeBuckets,wav.type());
 	cv::Mat a(NMFCCS,NTimeBuckets,wav.type());
-	// pre-emphasize the input
+    // pre-emphasize the input
 	preemphasis(wav,tmp);
 	
 	// take the log magnitude of the spectrogram
 	spectrogram(tmp,spec);
 	cv::abs(spec);
 	cv::log(spec,spec);
+    
 	for(int col = 0; col < spec.cols; ++col) {
 		mfcc.col(col) = (logFilterBank*spec.colRange(col,col));
 		cv::dct(mfcc.col(col),mfcc.col(col),NULL);
