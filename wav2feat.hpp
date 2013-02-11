@@ -32,8 +32,8 @@ class Features {
 	cv::Mat logFrequencies;
 	int nLogFilterBanks;
 	int type;
-    cv::Mat readFile(char *filename);
-    void write2file(cv::Mat mat, const char* file);
+    //cv::Mat readFile(char *filename);
+    //void write2file(cv::Mat mat, const char* file);
 	void preemphasis(cv::Mat wav, cv::Mat pre);
 	void spectrogram(cv::Mat wav,cv::Mat spec);
 	void generateFreqs(cv::Mat freqs);
@@ -45,6 +45,8 @@ class Features {
 
 	public:
 	void wav2feat (cv::Mat wav, cv::Mat feat);
+    cv::Mat readFile(char *filename);
+    void write2file(cv::Mat mat, const char* file);
 	// takes path to directory with hammingWindow and Filterbank coeffs
 	Features();
 	Features(int nLogFilterBanks, int type);

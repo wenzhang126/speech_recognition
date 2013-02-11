@@ -23,16 +23,21 @@ int main(void)
     float *windowBuffer;
     float buf[50000];
     int i, stop = 0, start = 0, forget = 4;
-    float adjust = 0.0001, alpha = 0.95;
+    float adjust = 0.0001, alpha = 0.95, tmp;
     float avgEnergy = 0, level, bg, lowThresh, highThresh, currEnergy[2];
     int numBytes, buflen, elapsedSpeech = 0, elapsedSilence = 0, elapsedSilenceThresh = 1000;
     int m, n, index, speech = 0, timeElapsed = 0;
     FILE *fid;
     float max_value = 32768.0;
     // for feature computation
-    Features comp;
-	Mat wav(50000, 1, CV_16U, (void*) buf, sizeof(float));;
+    Features comp(40, CV_32F);
+    cv::Mat wav;
+    //Features comp;
+	//Mat wav(50000, 1, CV_16U, (void*) buf, sizeof(float));;
 	Mat feat;
+    
+    char *filename = new char[20];
+    strcpy(filename, "recorded.dat");
 	
     numBytes = FRAMES_PER_BUFFER * NUM_CHANNELS * SAMPLE_SIZE ;
     sampleBlock = (SAMPLE *) malloc( numBytes );
@@ -51,18 +56,16 @@ int main(void)
     err = Pa_Initialize();
     if( err != paNoError ) goto error;
     
-    inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
+    inputParameters.device = Pa_GetDefaultInputDevice();
     inputParameters.channelCount = NUM_CHANNELS;
     inputParameters.sampleFormat = PA_SAMPLE_TYPE;
     inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
     inputParameters.hostApiSpecificStreamInfo = NULL;
     
     //fid = fopen("recorded.raw", "wb");
-    fid = fopen("recorded.dat", "wb");
+    fid = fopen(filename, "wb");
     if(fid == NULL)
         printf("Could not open file.");
-    
-    /* -- setup -- */
     
     err = Pa_OpenStream(
                         &stream,
@@ -70,9 +73,9 @@ int main(void)
                         NULL,
                         SAMPLE_RATE,
                         FRAMES_PER_BUFFER,
-                        paClipOff,      /* we won't output out of range samples so don't bother clipping them */
-                        NULL, /* no callback, use blocking API */
-                        NULL ); /* no callback, so no callback userData */
+                        paClipOff,      
+                        NULL, 
+                        NULL );
     if( err != paNoError ) goto error;
     
     i = 0;
@@ -184,8 +187,10 @@ int main(void)
         if(fid != NULL){
             //fwrite(sampleBlock, NUM_CHANNELS * sizeof(SAMPLE), FRAMES_PER_BUFFER, fid);
             for(n = 0; n < FRAMES_PER_BUFFER; n++){
-                if(n == 0) printf("%d\n", sampleBlock[n]); fflush(stdout);
-                fprintf(fid, "%d\n", sampleBlock[n]);
+                
+                tmp = (float)sampleBlock[n] / max_value;
+                //if(n == 0) printf("%d, %f\n", sampleBlock[n], tmp); fflush(stdout);
+                fprintf(fid, "%f\n", tmp);
             }
         }
         
@@ -211,9 +216,9 @@ int main(void)
     if(fid != NULL)
         fclose(fid);
     
-    free( sampleBlock );
+    free( sampleBlock ); 
     
-    fid = fopen("recorded.raw","r");
+    /*fid = fopen("recorded.raw","r");
     
     if(fid != NULL) {
         n = fread(buf,sizeof(float),50000,fid);
@@ -226,10 +231,15 @@ int main(void)
     	comp.wav2feat(wav,feat);
     	write2file(feat, "features.raw");
     }
-	comp.wav2feat(wav,feat);
-	
+	comp.wav2feat(wav,feat);*/
+    
+    wav = comp.readFile(filename);
+    comp.wav2feat(wav, feat);
+    
     Pa_Terminate();
+    
     return 0;
+    
     
 xrun:
     if( stream ) {
@@ -254,32 +264,3 @@ error:
     fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) );
     return -1;
 }
-
-/*int createWindow(char* path)
-{
-    char fullPath[100];
-    int N = FRAMES_PER_BUFFER;
-    int i;
-    FILE *fid;
-    
-    strcpy(fullPath, path);
-    strcat(fullPath, "/hamming.raw");
-    
-    float hamm[N];
-    
-    for(i = 0; i < N; i++){
-        hamm[i] = 0.54 - 0.46 * cos(2 * M_PI * i / N);
-    }
-    
-    fid = fopen("hamming.raw", "r");
-    if(fid != NULL){
-        fwrite(hamm, sizeof(float), N, fid);
-    }
-    else{
-        return -1;
-    }
-    
-    fclose(fid);
-    
-    return 0;
-}*/

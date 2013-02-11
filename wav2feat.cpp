@@ -21,10 +21,13 @@ Features::Features() {
 Features::Features(int nLogFilterBanks, int type) {
 	nLogFilterBanks = nLogFilterBanks;
 	type = type;
-	//frequencies((int)NW,1, ) // need float type;
+	frequencies.create((int)NW, 1, CV_32F); // need float type;
+    hammingWindow.create((int)NW, 1, CV_32F);
+    logFrequencies.create((int)NW, 1, CV_32F);
 	generateFreqs(frequencies);
 	generateHamming(hammingWindow);
     logFilterBank = generateFilterBank(nLogFilterBanks, frequencies, logFrequencies);
+    printf("Ending feature initialization\n");
 }
 
 cv::Mat Features::readFile(char *filename){
